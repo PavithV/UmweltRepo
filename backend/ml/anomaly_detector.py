@@ -74,6 +74,28 @@ def predict(values: pd.Series):
     arr = values.to_numpy().reshape(-1, 1)
     return model.predict(arr)  # -1 (Anomalie) / 1 (normal)
 
+def detect_latest():
+    # Letzte neue Messung holen
+    query = """
+        SELECT EXTRACT(EPOCH FROM time) AS t, value
+        FROM measurements
+        WHERE sensor_id = %s
+        ORDER BY time DESC
+        LIMIT 1;
+    """
+    with get_conn() as conn:
+        df = pd.read_sql(query, conn, params=[SENSOR_ID])
+    if df.empty:
+        print("Keine aktuelle Messung gefunden.")
+        return
+    latest_value = df["value"].iloc[0]
+    result = predict(pd.Series([latest_value]))
+    if result[0] == -1:
+        print(f"🚨 Anomalie erkannt: {latest_value}")
+    else:
+        print(f"✅ Normalwert: {latest_value}")
+
+
 if __name__ == "__main__":
     if not SENSOR_ID:
         print("Setze ML_SENSOR_ID-Umgebungsvariable, um Modell zu trainieren.")
@@ -86,9 +108,16 @@ if __name__ == "__main__":
             exit(1)
         # Trainiere Modell
         train()
+
+        print("Starte Anomalie-Erkennung alle 10 Sekunden...")
+        while True:
+            detect_latest()
+            time.sleep(10)
         # Falls du periodisch neu trainieren willst, kannst du hier schedule verwenden:
         # import schedule
         # schedule.every(24).hours.do(train)
         # while True:
         #     schedule.run_pending()
         #     time.sleep(60)
+
+

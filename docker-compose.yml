@@ -40,7 +40,7 @@ services:
       DB_NAME: sensebox
       DB_USER: postgres
       DB_PASSWORD: postgres
-      ML_SENSOR_ID: "6252bc0fd7e732001bbcacbc"   # unbedingt setzen! z.B. Sensor-ID
+      ML_SENSOR_ID: "6252afcfd7e732001bb6b9fb"   # unbedingt setzen! z.B. Sensor-ID
       MODEL_PATH: "/app/model/anomaly_iforest.joblib"
       TRAIN_LIMIT: 10000
     volumes:
@@ -61,7 +61,7 @@ services:
       DB_NAME: sensebox
       DB_USER: postgres
       DB_PASSWORD: postgres
-      ML_SENSOR_ID: "6252bc0fd7e732001bbcacbc"   # dieselbe ID wie beim ML-Container
+      ML_SENSOR_ID: "6252afcfd7e732001bb6b9fb"   # dieselbe ID wie beim ML-Container
     volumes:
       - model_volume:/app/model     # Damit das Dashboard das trainierte Modell findet
       - ./backend:/app/backend      # Damit Dashboard den anomaly_detector-Code und database.py importieren kann
